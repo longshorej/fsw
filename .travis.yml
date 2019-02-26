@@ -1,0 +1,73 @@
+language: rust
+
+os:
+- linux
+- osx
+#- windows
+
+rust:
+- stable
+
+script: |
+  set -e
+
+  release=0
+  target=
+  version=
+
+  tag="$(git name-rev --name-only HEAD)"
+
+  if [[ "$tag" == tags/v* ]]; then
+    release=1
+    version="$(sed 's/^tags\/v//' <<< $tag)"
+  fi
+
+  if [ "$release" = 1 ]; then
+    if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
+      rustup target add x86_64-unknown-linux-musl
+      target='--target x86_64-unknown-linux-musl'
+    fi
+
+    sed "s/^version = \"0.0.1\"$/version = \"$version\"/" Cargo.toml > Cargo.toml.new
+    mv Cargo.toml.new Cargo.toml
+    cat Cargo.toml
+    git add -A
+    git commit -m "version $version"
+  fi
+
+  rustup component add rustfmt-preview
+  cargo fmt && git diff --quiet
+  cargo build $target --release
+  cargo test $target --release
+
+  mkdir target/upload
+
+  if [ "$release" = 1 ]; then
+    if [ "$TRAVIS_OS_NAME" = 'linux' ]; then
+      cp target/x86_64-unknown-linux-musl/release/fsw target/upload/fsw-linux-amd64
+    elif [ "$TRAVIS_OS_NAME" = 'osx' ]; then
+      cp target/release/fsw target/upload/fsw-darwin-amd64
+    elif [ "$TRAVIS_OS_NAME" = 'windows' ]; then
+      cp target/release/fsw.exe target/upload/fsw-windows.exe
+    fi
+
+    if [ "$CRATES_API_KEY" != '' ] && [ "$TRAVIS_OS_NAME" = 'linux' ]; then
+      cargo login "$CRATES_API_KEY"
+      cargo publish
+    fi
+  fi
+
+
+  #env:
+  #  global:
+  #    secure: "CFx+HSe7rwA5oakoIP+xbUeqabLT3WsblrbEXSNKRl7VuD43Ets0LL43okswcQinpROxt727reEO0k7acUvJ9U6OaIeCt+jw6dwSx4/p+ueXC1wOB5Vrh4fDLyrQXInaBddx/Mj6iI7b6Nk0ZD+KFv+selj5Q7fwSryBFHD8FlUKonml+ECfBbRxD77NTf4FxxdflSfO2fUlRp9UlhE1goOPY9MIX2uA7h5JnnIjwni9YkJvafysQf2/BhvL+CJempqcw/GqGdJRPW8nMXhDBOM/ewIanKt2huzQJ661FBvJJznccDJtqE2c3FH+en+17RXpzAWK975sMximwQIpAQSY9A/DNiSPjs83D3aZcG8RAhdUtBjEItU5u9fHIhWprTPsNDA7c3AxJlcOS0oLBom8+Jv+/RwcQMW/dSK7uz91WAr2VPSxjHYI0IQx+NxWx9CtCy9yuFvjyhH5AJ+95IKdpCOtPr0b0CjSD0X2oBEwFIXt+8ANMunB5nyY1Tv8GvXIwUxTl7gyu2Qnq+agczuFzA08X5V9H5ovKoWtFMWJA1DG9DYam7RBTGVvJF7YEsjT2IWTvXODM1DXegQVjZI+C7axQOHdNwzkDGS5ZdbvtZSrHfjdv7G8P4oLyWy0+oJtl0i5w1Lz3dLHHxsnpo1YNPoO6rTWVjsP5kD8YP0="
+  #
+  #deploy:
+  #  provider: releases
+  #  api_key:
+  #    secure: bwzMowWoWUm34k6qp5z/GKcNh26bSwwfaL/pCBtN6SBFQO0Jo5ZI0BUa5bZAzM93tR70/QyThirxSxtKEa0dLZ9er9Hk854QFLKqG0OC8Hv5A0WS0BSEkecA4N/OpNOo7wjDkYIAKXC870ojIDVwZC7644lNBvBacAUHTvGaFu3+qO9o9qAEfVb6Z28r41cINUYm12qqVFcQrAO8SZgBOxMEhlx9p6aNeZ0vwJVUdcTNOn91pPvAjt1I+9Rcdfn/Sbg+DPNpf8IHCe0zKnXSIefJrdwWgUBgn/Bcj7d0yPFtxVgiOBhHT4kh6aK84L1pPIYi0/ULZmWM8SMaZLNM9BVA5N4y4gBYArxqNcR1/6kHgHe0rMAko8lRX8JP6jEov3p0MN1CO7zSOa2U/njZYqi93VMuAvvKiAR9lKfezVwvU2ER3EBjijCBPoaXmVmGrY8219pSMA62D+oJUBoc94d4AfjuunOcYrTfpwiWXftoXq5TPwOTsk2QQvyOczVLzqrGeOmYqa6nk+oQ5Hf0ukgC0lxL0pxhGv6q6tNKHSfkVWBRkM4pn2TZ04JqBvuovbL7Ctomd5uc46tGAqvnhqjUSbQ0BTK9BFpQPSBY6yQilvMz8ag6ARpmVpSyy4bOQZKiVXPIpQnc0RFiWqmi8d/EOXN0h9KS3NI1jP9/mP0=
+  #  skip_cleanup: true
+  #  file_glob: true
+  #  file: target/upload/*
+  #  on:
+  #    tags: true

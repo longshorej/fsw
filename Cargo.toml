@@ -1,0 +1,8 @@
+[package]
+name = "fsw"
+version = "0.0.1"
+authors = ["Jason Longshore <longshorej@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+notify = "4.0.0"
