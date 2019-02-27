@@ -28,4 +28,6 @@ fsw <command> [<arg>]...
 
 ## Changelog
 
-Nothing yet. Preview.
+### 0.1.0 - 2019-02-26
+
+* Initial release.
