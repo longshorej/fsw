@@ -134,6 +134,12 @@ fn main() {
     let mut args = env::args();
 
     if args.len() < 2 {
+        let args = args.collect::<Vec<String>>();
+        println!("fsw version: {}", env!("CARGO_PKG_VERSION"));
+        println!(
+            "usage: {} <cmd> [<arg>]...",
+            args.get(0).map(|s| s.as_str()).unwrap_or("fsw")
+        );
         process::exit(1);
     }
 
