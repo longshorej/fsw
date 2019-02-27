@@ -22,16 +22,12 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
 
     while let Ok(path) = receiver.recv() {
         let run = match path {
-            Msg::PathEvent(path) => {
-                if !git_ignored(&path) {
-                    if running {
-                        waiting = true;
-                        false
-                    } else {
-                        true
-                    }
-                } else {
+            Msg::PathEvent(_) => {
+                if running {
+                    waiting = true;
                     false
+                } else {
+                    true
                 }
             }
 
@@ -61,7 +57,7 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
                 let sender = sender.clone();
                 let command = command.clone();
                 let args = args.clone();
-                let handle = process::Command::new(command)
+                let handle = process::Command::new(&command)
                     .args(args)
                     .stdin(process::Stdio::null())
                     .stdout(process::Stdio::inherit())
@@ -69,7 +65,7 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
                     .spawn();
 
                 thread::spawn(move || {
-                    handle_child(handle);
+                    handle_child(command, handle);
 
                     let _ = sender.send(Msg::ThreadFinished);
                 });
@@ -78,18 +74,18 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
     }
 }
 
-fn handle_child(result: io::Result<process::Child>) {
+fn handle_child(command: String, result: io::Result<process::Child>) {
     match result.and_then(|mut s| s.wait()).map(|s| s.code()) {
         Ok(Some(c)) => {
-            println!("exited with {}", c);
+            println!("{} exited with {}", command, c);
         }
 
         Ok(None) => {
-            println!("exited with unknown");
+            println!("{} exited with unknown", command);
         }
 
         Err(e) => {
-            println!("failed with {}", e);
+            println!("{} failed with {}", command, e);
         }
     }
 }
@@ -97,17 +93,22 @@ fn handle_child(result: io::Result<process::Child>) {
 fn watch(sender: Sender<Msg>) -> io::Result<()> {
     let (tx, rx) = channel();
 
+    let working_dir = env::current_dir()?;
+    let git_dir = working_dir.join(".git");
+
     let mut watcher = raw_watcher(tx).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
     watcher
-        .watch(".", RecursiveMode::Recursive)
+        .watch(working_dir, RecursiveMode::Recursive)
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
     while let Ok(event) = rx.recv() {
         if let Some(path) = event.path {
-            sender
-                .send(Msg::PathEvent(path))
-                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            if !path.starts_with(&git_dir) && !git_ignored(&path) {
+                sender
+                    .send(Msg::PathEvent(path))
+                    .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            }
         }
     }
 
@@ -115,8 +116,6 @@ fn watch(sender: Sender<Msg>) -> io::Result<()> {
 }
 
 fn git_ignored(path: &path::Path) -> bool {
-    // @TODO need to ignore .git directory
-
     if let Some(s) = path.to_str() {
         process::Command::new("git")
             .args(&["check-ignore", s])

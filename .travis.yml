@@ -1,13 +1,9 @@
 language: rust
-
 os:
 - linux
 - osx
-#- windows
-
 rust:
 - stable
-
 script: |
   set -e
 
@@ -57,17 +53,16 @@ script: |
     fi
   fi
 
+env:
+  global:
+    secure: "Ub9/Xb6UR51Z6YM+uo5PycOW6P+gkm6q+X1VOQKFugAHba0Dp92GY9jqLz9oPj7vG7nakURdH+FsmK3M6t/LNHFhEcvXjCnhunti173IP4FD7QlbVtIlCSS5YqS65/18vKYN7ewXLPJapFcCE29f7lqbtfV/D+9zgS5WVj8FsciIcmsh+IbF9dBLemGWU55RDhh32g4yeTHoZq/ygcNlzxOWN+cJmV+3PMMU8OI/BRwkBWAyMSWTOuYQdMdcDpgR/Rc+Z5k87wDn36P0JlF2mtof6yDvg5wpgx56w4JLtD1iDd0ZYThhHa7WJ0uhFgXFg6+C9k2ALuOcBJ3rOQ5Wujo9y70EW20wpJ5V0YNQOmdHz0a8kUNLI5YhGlzza/FQZc11+IaF38JoeOD26ycwHwAfChDR+lfwHQuc2hBw9wqEtysLkqC/qBAMx0mDujmYwOcn6YyQZ+j4t1f4Z7UmxvlUA1vof5x4cEZNQRWHw9YOImGv8J75VCkfGTa0625t3TNGUjC0sD+Stkyywjd6AuPu1g2LvTm2X7Zgv3irG8nc4ZJ5Gg0j/uN43W7Mw7vXehn1nbSy8eCP1D33lExxqdtNtQjvHmbyic4qwrR6jcv/senqtseazUH6vpD6rh2FU2lsVqPvWMmR4aPgREH/m5r0W0wKFwDcsxIsih9+P1I="
 
-  #env:
-  #  global:
-  #    secure: "CFx+HSe7rwA5oakoIP+xbUeqabLT3WsblrbEXSNKRl7VuD43Ets0LL43okswcQinpROxt727reEO0k7acUvJ9U6OaIeCt+jw6dwSx4/p+ueXC1wOB5Vrh4fDLyrQXInaBddx/Mj6iI7b6Nk0ZD+KFv+selj5Q7fwSryBFHD8FlUKonml+ECfBbRxD77NTf4FxxdflSfO2fUlRp9UlhE1goOPY9MIX2uA7h5JnnIjwni9YkJvafysQf2/BhvL+CJempqcw/GqGdJRPW8nMXhDBOM/ewIanKt2huzQJ661FBvJJznccDJtqE2c3FH+en+17RXpzAWK975sMximwQIpAQSY9A/DNiSPjs83D3aZcG8RAhdUtBjEItU5u9fHIhWprTPsNDA7c3AxJlcOS0oLBom8+Jv+/RwcQMW/dSK7uz91WAr2VPSxjHYI0IQx+NxWx9CtCy9yuFvjyhH5AJ+95IKdpCOtPr0b0CjSD0X2oBEwFIXt+8ANMunB5nyY1Tv8GvXIwUxTl7gyu2Qnq+agczuFzA08X5V9H5ovKoWtFMWJA1DG9DYam7RBTGVvJF7YEsjT2IWTvXODM1DXegQVjZI+C7axQOHdNwzkDGS5ZdbvtZSrHfjdv7G8P4oLyWy0+oJtl0i5w1Lz3dLHHxsnpo1YNPoO6rTWVjsP5kD8YP0="
-  #
-  #deploy:
-  #  provider: releases
-  #  api_key:
-  #    secure: bwzMowWoWUm34k6qp5z/GKcNh26bSwwfaL/pCBtN6SBFQO0Jo5ZI0BUa5bZAzM93tR70/QyThirxSxtKEa0dLZ9er9Hk854QFLKqG0OC8Hv5A0WS0BSEkecA4N/OpNOo7wjDkYIAKXC870ojIDVwZC7644lNBvBacAUHTvGaFu3+qO9o9qAEfVb6Z28r41cINUYm12qqVFcQrAO8SZgBOxMEhlx9p6aNeZ0vwJVUdcTNOn91pPvAjt1I+9Rcdfn/Sbg+DPNpf8IHCe0zKnXSIefJrdwWgUBgn/Bcj7d0yPFtxVgiOBhHT4kh6aK84L1pPIYi0/ULZmWM8SMaZLNM9BVA5N4y4gBYArxqNcR1/6kHgHe0rMAko8lRX8JP6jEov3p0MN1CO7zSOa2U/njZYqi93VMuAvvKiAR9lKfezVwvU2ER3EBjijCBPoaXmVmGrY8219pSMA62D+oJUBoc94d4AfjuunOcYrTfpwiWXftoXq5TPwOTsk2QQvyOczVLzqrGeOmYqa6nk+oQ5Hf0ukgC0lxL0pxhGv6q6tNKHSfkVWBRkM4pn2TZ04JqBvuovbL7Ctomd5uc46tGAqvnhqjUSbQ0BTK9BFpQPSBY6yQilvMz8ag6ARpmVpSyy4bOQZKiVXPIpQnc0RFiWqmi8d/EOXN0h9KS3NI1jP9/mP0=
-  #  skip_cleanup: true
-  #  file_glob: true
-  #  file: target/upload/*
-  #  on:
-  #    tags: true
+deploy:
+  provider: releases
+  api_key:
+    secure: vANVoUd86OPJMCZMDuk5qX+RXZ429/rT8auvrfoA7f9LrS6vP9nqpLe3kFOc/BbXl/7V+oJBeCvAWbXydo/raOgzYSA1Vk/RMEcuFosoVxqlMvTbEkvzVDmZLF+q8w3sZ5MNNXf2jaboFi47Kff2Y02+ezPr1K9aZyziIK5oBBVESapewdnSz+6iqlVk5t6D1pelBejdjt9jKcqDkycYgPF2qmom4InPmrABxLRbgxLkuksSkRJFr/XgSVHU5ufb3OI42ATKD9pVNIX4cEgUgXM5AWYHbYXNDMNntEWzWrfGefEdpWoCKAw1rZWo9ZYZMxOKhwCEy2NSGQgdK2ReVqwsA8+6k/WY5r96A7ANSVlDGpfHmr3SxNPQdvY9DIzmHnJ7Rq4MQtBKV3f/DjJS9IKpc/YqdObdrLAIldN6CsK6S/d4lh6Eo9hivUcUMPvWYKGGe2cmBiKZVbbkjRRfgKIzRMHSuI1sn9CbJi3iKDsZIhAn1k1TrhorfsvYr4NHdEwgEaV+ysJvhNOh7ql5P2BeRagEXxMcRsLP6K3XhzLEqPuxb4XzWkJrpv7LgwEj8iIax+nzufoY4l7+mceBb6IaIFmHt8GEIpKylk37wZCPlcMa5KnsXbYT7vFhUD/cZsLASnIaaO9oELIZ17XIfdBXJaFMu6I996nULPO43p8=
+  skip_cleanup: true
+  file_glob: true
+  file: target/upload/*
+  on:
+    tags: true
