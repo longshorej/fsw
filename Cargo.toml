@@ -1,8 +1,14 @@
 [package]
 name = "fsw"
 version = "0.0.1"
-authors = ["Jason Longshore <longshorej@gmail.com>"]
+authors = ["Jason Longshore <hello@jasonlongshore.com>"]
 edition = "2018"
+keywords = ["command", "runner", "tool", "watch", "directory"]
+license = "Apache-2.0"
+repository = "https://github.com/longshorej/fsw"
+homepage = "https://github.com/longshorej/fsw"
+description = "A tool to watch a directory and run a command when its contents change."
+readme = "README.md"
 
 [dependencies]
 notify = "4.0.0"
