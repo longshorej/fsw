@@ -8,7 +8,7 @@ fsw is a tool for recursively watching the current working directory and running
 
 It's integrated with Git, so it won't rerun the command if an ignored file changes.
 
-Why? Well, I quite like the workflow that sbt's tidle (`~`) operator provides, and I wanted a reliable mechanism to do the same thing with other tools.
+Why? Well, I quite like the workflow that sbt's tilde (`~`) operator provides, and I wanted a reliable mechanism to do the same thing with other tools.
 
 ## Install
 
@@ -27,6 +27,13 @@ fsw <command> [<arg>]...
 ```
 
 ## Changelog
+
+### 0.1.1 - 2019-03-26
+
+* Rework design to not watch ignored directories, improving reliability and resource utilization
+* Reduce debouncing period to 125ms
+* Mark fsw output with "fsw:"
+* Bump notify and transitive dependencies
 
 ### 0.1.0 - 2019-02-26
 

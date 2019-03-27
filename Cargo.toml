@@ -11,4 +11,4 @@ description = "A tool to watch a directory and run a command when its contents c
 readme = "README.md"
 
 [dependencies]
-notify = "4.0.0"
+notify = "4.0.10"
