@@ -1,7 +1,12 @@
 extern crate notify;
 
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::time::Duration;
+
 const DRAIN_MS: u64 = 125;
 const GIT_PATH: &str = ".git";
+const POLL_MS: u64 = 63;
 
 use notify::{raw_watcher, RecommendedWatcher, RecursiveMode, Watcher};
 use std::{
@@ -22,13 +27,13 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
     let mut running = false;
 
     let _ = sender.send(Msg::ThreadFinished);
-    let mut waiting = true;
+    let waiting = Arc::new(AtomicBool::new(false));
 
     while let Ok(path) = receiver.recv() {
         let run = match path {
             Msg::PathEvent => {
                 if running {
-                    waiting = true;
+                    waiting.store(true, Ordering::SeqCst);
                     false
                 } else {
                     true
@@ -37,13 +42,13 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
 
             Msg::ThreadFinished => {
                 running = false;
-                waiting
+                waiting.load(Ordering::SeqCst)
             }
         };
 
         if run {
             running = true;
-            waiting = false;
+            waiting.store(false, Ordering::SeqCst);
             // we've found a file that isn't ignored, so
             // we'll wait a bit for any other fs events, and
             // then drain them all.
@@ -61,23 +66,45 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
                 let sender = sender.clone();
                 let command = command.clone();
                 let args = args.clone();
+                let waiting = waiting.clone();
 
                 thread::spawn(move || {
-                    let status = process::Command::new(&command)
+                    let child = process::Command::new(&command)
                         .args(args)
                         .stdin(process::Stdio::null())
                         .stdout(process::Stdio::inherit())
                         .stderr(process::Stdio::inherit())
-                        .status();
+                        .spawn();
 
-                    match status.map(|s| s.code()) {
-                        Ok(Some(c)) => {
-                            println!("fsw: {} exited with {}", command, c);
-                        }
+                    match child {
+                        Ok(mut child) => loop {
+                            if waiting.load(Ordering::SeqCst) {
+                                let _ = child.kill();
+                            }
 
-                        Ok(None) => {
-                            println!("fsw: {} exited with unknown", command);
-                        }
+                            match child.try_wait() {
+                                Ok(Some(status)) => {
+                                    println!(
+                                        "fsw: {} exited{}",
+                                        command,
+                                        status
+                                            .code()
+                                            .map(|c| format!(" with {}", c))
+                                            .unwrap_or_default()
+                                    );
+
+                                    break;
+                                }
+
+                                Ok(None) => {
+                                    thread::sleep(Duration::from_millis(POLL_MS));
+                                }
+
+                                Err(_) => {
+                                    let _ = child.kill();
+                                }
+                            }
+                        },
 
                         Err(e) => {
                             println!("fsw: {} failed with {}", command, e);
