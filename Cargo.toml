@@ -12,3 +12,9 @@ readme = "README.md"
 
 [dependencies]
 notify = "4.0.17"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
