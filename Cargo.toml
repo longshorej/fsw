@@ -2,7 +2,7 @@
 name = "fsw"
 version = "0.0.1"
 authors = ["Jason Longshore <hello@jasonlongshore.com>"]
-edition = "2018"
+edition = "2021"
 keywords = ["command", "runner", "tool", "watch", "directory"]
 license = "Apache-2.0"
 repository = "https://github.com/longshorej/fsw"
