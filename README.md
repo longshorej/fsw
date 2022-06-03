@@ -26,6 +26,11 @@ fsw <command> [<arg>]...
 
 ## Changelog
 
+### unreleased - YYYY-MM-DD
+
+- Reduce binary file size (on Linux from ~5.3MB to ~625KB)
+- Switch to Rust 2021 Edition
+
 ### 0.1.1 - 2019-03-26
 
 * Rework design to not watch ignored directories, improving reliability and resource utilization

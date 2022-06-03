@@ -50,7 +50,7 @@ fn handle(sender: Sender<Msg>, receiver: Receiver<Msg>, command: String, args: V
 
             thread::sleep(time::Duration::from_millis(DRAIN_MS));
 
-            while let Ok(_) = receiver.try_recv() {}
+            while receiver.try_recv().is_ok() {}
 
             // we've drained everything, so we'll kick off our
             // process. we do this in another thread so that
@@ -112,7 +112,7 @@ fn watch_dir(
             && !git_ignored(git_dir, &entry_path)
             && !watching.contains(&entry_path)
         {
-            watch_dir(&git_dir, watcher, watching, &entry_path)?;
+            watch_dir(git_dir, watcher, watching, &entry_path)?;
 
             watching.insert(entry_path);
         }
